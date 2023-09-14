@@ -2,14 +2,12 @@
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
 #include <WiFiClientSecure.h>
+#include <WiFiManager.h>
 #include "cert.h"
-
-const char * ssid = "Shunya Ekai";
-const char * password = "SES@01622";
 
 
 String FirmwareVer = {
-  "2.3"
+  "2.4"
 };
 #define URL_fw_Version "https://raw.githubusercontent.com/shoryasngh/ESP8266_ESP32_SelfUpdate/master/esp32_ota/bin_version.txt"
 #define URL_fw_Bin "https://raw.githubusercontent.com/shoryasngh/ESP8266_ESP32_SelfUpdate/master/esp32_ota/fw.bin"
@@ -95,16 +93,25 @@ void loop() {
 
 void connect_wifi() {
   Serial.println("Waiting for WiFi");
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+  WiFi.mode(WIFI_STA);
+  WiFiManager wm;
+  wm.setTimeout(300);
 
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  bool res;
+  res = wm.autoConnect("ota", ""); // password protected ap
+  if (!res) {
+    Serial.println("Failed to connect");
+    ESP.restart();
+    delay(1);
+  }
+  else {
+    Serial.println("connected.....");
+
+  }
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    ESP.restart();
+  }
 }
 
 
